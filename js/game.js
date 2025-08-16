@@ -1,183 +1,190 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
+const scoreBoard = document.getElementById("scoreBoard");
+const jumpBtn = document.getElementById("jumpBtn");
+const overlay = document.getElementById("overlay");
+const overlayText = document.getElementById("overlayText");
+const playBtn = document.getElementById("playBtn");
 
-// Responsive canvas size
-canvas.width = window.innerWidth > 500 ? 500 : window.innerWidth - 20;
-canvas.height = window.innerHeight > 250 ? 250 : window.innerHeight - 40;
-
-// Fill page background black
-document.body.style.backgroundColor = "black";
-
-// ================= Images =================
-const playerImg = new Image();
-playerImg.src = "images/player.png";
-
-const obstacleImgs = ["images/syntax.png", "images/semicolon.png"].map(src => {
-  let img = new Image();
-  img.src = src;
-  return img;
-});
-
-// ================= Player =================
-let player = {
-  x: 50,
-  y: 0,
-  width: canvas.width * 0.08,
-  height: canvas.height * 0.35,
-  dy: 0,
-  gravity: 0.6,
-  jumpPower: -10,
-  grounded: true
-};
-player.y = canvas.height - player.height;
-
-// ================= Obstacles =================
-let obstacles = [];
-let obstacleTimer = 0;
-let obstacleInterval = 100;
-
-// ================= Game State =================
-let score = 0;
-let gameOver = false;
-let gameStarted = false;
-
-// ================= Functions =================
-function drawPlayer() {
-  ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
+// Resize canvas to fit container
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight * 0.8; // 80% of screen
 }
+resizeCanvas();
+window.addEventListener("resize", resizeCanvas);
 
-function drawObstacle(obs) {
-  ctx.drawImage(obs.img, obs.x, obs.y, obs.width, obs.height);
-}
+// Game variables
+let player, obstacles, score, gameOver, gameStarted, obstacleImages;
 
-function spawnObstacle() {
-  const img = obstacleImgs[Math.floor(Math.random() * obstacleImgs.length)];
-  const obs = {
-    x: canvas.width,
-    y: canvas.height - canvas.height * 0.15,
+function init() {
+  player = {
+    x: 50,
+    y: canvas.height - 100,
     width: canvas.width * 0.1,
-    height: canvas.height * 0.15,
-    img: img
+    height: canvas.height * 0.3,
+    color: "blue",
+    dy: 0,
+    gravity: 0.6,
+    jumpPower: -15,
+    grounded: true,
   };
-  obstacles.push(obs);
-}
 
-function detectCollision(p, obs) {
-  return (
-    p.x < obs.x + obs.width &&
-    p.x + p.width > obs.x &&
-    p.y < obs.y + obs.height &&
-    p.y + p.height > obs.y
-  );
-}
-
-function resetGame() {
-  score = 0;
   obstacles = [];
-  obstacleTimer = 0;
+  score = 0;
   gameOver = false;
-  player.y = canvas.height - player.height;
-  player.dy = 0;
   gameStarted = false;
 }
 
 function startGame() {
+  init();
+  overlay.style.display = "none";
   gameStarted = true;
-  gameOver = false;
-  score = 0;
-  obstacles = [];
-  obstacleTimer = 0;
-  requestAnimationFrame(update);
+  loop();
 }
 
-// ================= Game Loop =================
+function resetGame() {
+  init();
+  overlay.style.display = "none";
+  gameStarted = true;
+  loop();
+}
+
+// Load images
+const playerImg = new Image();
+playerImg.src = "images/player.png";
+
+const syntaxImg = new Image();
+syntaxImg.src = "images/syntax.png";
+
+const semicolonImg = new Image();
+semicolonImg.src = "images/semicolon.png";
+
+obstacleImages = [syntaxImg, semicolonImg];
+
+function drawPlayer() {
+  if (playerImg.complete) {
+    ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
+  } else {
+    ctx.fillStyle = player.color;
+    ctx.fillRect(player.x, player.y, player.width, player.height);
+  }
+}
+
+function drawObstacles() {
+  obstacles.forEach(obs => {
+    if (obs.img.complete) {
+      ctx.drawImage(obs.img, obs.x, obs.y, obs.width, obs.height);
+    } else {
+      ctx.fillStyle = "red";
+      ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+    }
+  });
+}
+
+function spawnObstacle() {
+  let size = canvas.height * 0.09;
+  let obs = {
+    x: canvas.width,
+    y: canvas.height - size,
+    width: canvas.width * 0.04,
+    height: size,
+    img: obstacleImages[Math.floor(Math.random() * obstacleImages.length)],
+  };
+  obstacles.push(obs);
+}
+
+function checkCollision(a, b) {
+  return (
+    a.x < b.x + b.width &&
+    a.x + a.width > b.x &&
+    a.y < b.y + b.height &&
+    a.y + a.height > b.y
+  );
+}
+
+let lastSpawn = Date.now();
+let spawnInterval = 2000; // ms
+let gameSpeed = 5;
+
 function update() {
-  ctx.fillStyle = "white";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  if (!gameStarted || gameOver) return;
 
-  if (!gameStarted) {
-    ctx.fillStyle = "black";
-    ctx.font = "20px Arial";
-    ctx.textAlign = "center";
-    ctx.fillText("Tap/Click to Play", canvas.width / 2, canvas.height / 2);
-    return;
-  }
-
-  if (gameOver) {
-    ctx.fillStyle = "black";
-    ctx.font = "20px Arial";
-    ctx.textAlign = "center";
-    ctx.fillText("Game Over! Score: " + score, canvas.width / 2, canvas.height / 2 - 20);
-    ctx.fillText("Tap/Click to Play Again", canvas.width / 2, canvas.height / 2 + 20);
-    return;
-  }
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   // Player physics
   player.y += player.dy;
-  player.dy += player.gravity;
   if (player.y + player.height >= canvas.height) {
     player.y = canvas.height - player.height;
     player.dy = 0;
     player.grounded = true;
+  } else {
+    player.dy += player.gravity;
   }
 
   // Draw player
   drawPlayer();
 
-  // Obstacles
-  obstacleTimer++;
-  if (obstacleTimer >= obstacleInterval) {
+  // Spawn obstacles
+  if (Date.now() - lastSpawn > spawnInterval) {
     spawnObstacle();
-    obstacleTimer = 0;
+    lastSpawn = Date.now();
   }
 
-  for (let i = 0; i < obstacles.length; i++) {
-    let obs = obstacles[i];
-    obs.x -= canvas.width * 0.01; // speed
-    drawObstacle(obs);
+  // Move obstacles
+  obstacles.forEach(obs => {
+    obs.x -= gameSpeed;
+  });
 
-    if (detectCollision(player, obs)) {
+  // Remove off-screen
+  obstacles = obstacles.filter(obs => obs.x + obs.width > 0);
+
+  // Draw obstacles
+  drawObstacles();
+
+  // Collision
+  for (let obs of obstacles) {
+    if (checkCollision(player, obs)) {
       gameOver = true;
+      overlay.style.display = "flex";
+      overlayText.innerHTML = `Game Over<br>Score: ${score}`;
+      playBtn.innerText = "Play Again";
     }
   }
 
-  // Remove passed obstacles
-  obstacles = obstacles.filter(obs => obs.x + obs.width > 0);
-
   // Score
-  if (!gameOver) score++;
-  ctx.fillStyle = "black";
-  ctx.font = "16px Arial";
-  ctx.textAlign = "left";
-  ctx.fillText("Score: " + score, 10, 20);
+  score++;
+  scoreBoard.innerText = `Score: ${score}`;
 
   requestAnimationFrame(update);
 }
 
-// ================= Controls =================
-canvas.addEventListener("click", () => {
-  if (!gameStarted) {
-    startGame();
-  } else if (gameOver) {
-    resetGame();
-    startGame();
-  } else if (player.grounded) {
+function loop() {
+  requestAnimationFrame(update);
+}
+
+// Controls
+window.addEventListener("keydown", e => {
+  if (e.code === "Space" && player.grounded && !gameOver && gameStarted) {
     player.dy = player.jumpPower;
     player.grounded = false;
   }
 });
 
-// Mobile support (touch)
-canvas.addEventListener("touchstart", (e) => {
-  e.preventDefault();
-  if (!gameStarted) {
-    startGame();
-  } else if (gameOver) {
-    resetGame();
-    startGame();
-  } else if (player.grounded) {
+jumpBtn.addEventListener("click", () => {
+  if (player.grounded && !gameOver && gameStarted) {
     player.dy = player.jumpPower;
     player.grounded = false;
   }
-}, { passive: false });
+});
 
+playBtn.addEventListener("click", () => {
+  if (!gameStarted || gameOver) {
+    resetGame();
+  }
+});
+
+// Start overlay visible at beginning
+overlay.style.display = "flex";
+overlayText.innerText = "Run from the Infinite Loop";
+playBtn.innerText = "Play";
