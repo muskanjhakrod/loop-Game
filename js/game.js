@@ -44,7 +44,18 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-canvas.addEventListener("click", () => {
+// canvas.addEventListener("click", () => {
+//   if (!gameStarted) {
+//     startGame();
+//   } else if (gameOver) {
+//     resetGame();
+//   } else if (player.grounded) {
+//     player.dy = player.jumpPower;
+//     player.grounded = false;
+//   }
+// });
+
+function handleInput() {
   if (!gameStarted) {
     startGame();
   } else if (gameOver) {
@@ -53,7 +64,28 @@ canvas.addEventListener("click", () => {
     player.dy = player.jumpPower;
     player.grounded = false;
   }
+}
+
+// ✅ Desktop: Mouse
+canvas.addEventListener("click", handleInput);
+
+// ✅ Desktop: Keyboard
+document.addEventListener("keydown", (e) => {
+  if (e.code === "Space" || e.code === "ArrowUp") {
+    handleInput();
+  }
 });
+
+// ✅ Mobile: Touch
+canvas.addEventListener("touchstart", (e) => {
+  e.preventDefault(); // prevent screen scroll/zoom
+  handleInput();
+}, { passive: false });
+
+
+
+
+
 
 // Draw player
 function drawPlayer() {
