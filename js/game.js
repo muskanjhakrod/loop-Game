@@ -1,6 +1,18 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
+// ----- Player Setup -----
+let player = {
+  x: 50,
+  y: 300,
+  width: 120,
+  height: 150,
+  dy: 0,
+  gravity: 0.6,
+  jumpPower: -15,
+  grounded: true
+};
+
 // Responsive canvas
 function resizeCanvas() {
   canvas.width = window.innerWidth * 0.95; // 95% of screen width
@@ -19,21 +31,11 @@ function resizeCanvas() {
 window.addEventListener("resize", resizeCanvas);
 resizeCanvas();
 
-// ----- Player Setup -----
-let player = {
-  x: 50,
-  y: 300,
-  width: 120,
-  height: 150,
-  dy: 0,
-  gravity: 0.6,
-  jumpPower: -15,
-  grounded: true
-};
+
 
 // Load player image
 const playerImg = new Image();
-playerImg.src = "static/images/player.png"; // Replace with your player image path
+playerImg.src = "images/player.png"; // Replace with your player image path
 
 // ----- Obstacles Setup -----
 let obstacles = [];
@@ -43,8 +45,8 @@ let gameOver = false;
 
 // Load obstacle images
 const obstacleImages = [
-  "static/images/syntax.png",
-  "static/images/semicolon.png"
+  "images/syntax.png",
+  "images/semicolon.png"
 ].map(src => {
   const img = new Image();
   img.src = src;
