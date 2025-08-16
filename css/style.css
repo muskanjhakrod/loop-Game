@@ -3,11 +3,14 @@ body {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background: #111;
+  background-color: black;
   margin: 0;
 }
 
 canvas {
   background: #eee;
   border: 2px solid #333;
+  width: 90%;
+  height: 90%;
+  display: block;
 }
