@@ -103,7 +103,7 @@ function spawnObstacle() {
   let obs = {
     x: canvas.width,
     y: canvas.height - size,
-    width: canvas.width * 0.04,
+    width: canvas.width * 0.1,
     height: size,
     img: obstacleImages[Math.floor(Math.random() * obstacleImages.length)],
   };
@@ -118,6 +118,21 @@ function checkCollision(a, b) {
     a.y + a.height > b.y
   );
 }
+
+
+
+// Debug draw hitboxes (press D to toggle)
+let debugHitbox = false;
+window.addEventListener("keydown", e => {
+  if (e.key === "d") debugHitbox = !debugHitbox;
+});
+
+function drawHitbox(obj, shrink = 0.8, color = "lime") {
+  const hb = getHitbox(obj, shrink);
+  ctx.strokeStyle = color;
+  ctx.strokeRect(hb.x, hb.y, hb.width, hb.height);
+}
+
 
 function spawnObstacle() {
   const size = 40 + Math.random() * 30;
@@ -177,7 +192,7 @@ function update() {
     
      // Score +10 if player is above obstacle when passing
   if (!obs.passed && obs.x + obs.width < player.x) {
-    if (player.y + player.height <= obs.y) {  
+    if (player.y + player.height <= obs.y) {
       // player was above obstacle
       score += 10;
     }
@@ -202,11 +217,9 @@ function update() {
     }
   }
 
+
   // Score
-
-
   scoreBoard.innerText = `Score: ${score}`;
-
   requestAnimationFrame(update);
 }
 
