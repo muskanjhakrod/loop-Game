@@ -150,7 +150,7 @@ function spawnObstacle() {
 
 let lastSpawn = Date.now();
 let spawnInterval = 2000; // ms
-let gameSpeed = 3;
+let gameSpeed = 3.5;
 
 function update() {
   if (!gameStarted || gameOver) return;
