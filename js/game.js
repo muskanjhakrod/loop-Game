@@ -18,23 +18,39 @@ window.addEventListener("resize", resizeCanvas);
 let player, obstacles, score, gameOver, gameStarted, obstacleImages;
 
 function init() {
+  // player = {
+  //   x: 50,
+  //   y: canvas.height - 100,
+  //   width: canvas.width * 0.1,
+  //   height: canvas.height * 0.3,
+  //   color: "blue",
+  //   dy: 0,
+  //   gravity: 0.6,
+  //   jumpPower: -15,
+  //   grounded: true,
+  // };
+
   player = {
-    x: 50,
-    y: canvas.height - 100,
-    width: canvas.width * 0.1,
-    height: canvas.height * 0.3,
-    color: "blue",
-    dy: 0,
-    gravity: 0.6,
-    jumpPower: -15,
-    grounded: true,
-  };
+  x: 50,
+  y: canvas.height - playerHeight,
+  width: playerWidth,
+  height: playerHeight,
+  color: "blue",
+  dy: 0,
+  gravity: 0.6,
+  jumpPower: -12,
+  grounded: true
+};
 
   obstacles = [];
   score = 0;
   gameOver = false;
   gameStarted = false;
 }
+
+// Player setup with fixed aspect ratio
+let playerHeight = canvas.height * 0.18;
+let playerWidth = playerHeight * 0.6; // maintain ratio (not stretched)
 
 function startGame() {
   init();
