@@ -38,7 +38,7 @@ function init() {
   color: "blue",
   dy: 0,
   gravity: 0.6,
-  jumpPower: -12,
+  jumpPower: -14,
   grounded: true
 };
 
