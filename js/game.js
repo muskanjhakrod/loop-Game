@@ -18,18 +18,6 @@ window.addEventListener("resize", resizeCanvas);
 let player, obstacles, score, gameOver, gameStarted, obstacleImages;
 
 function init() {
-  // player = {
-  //   x: 50,
-  //   y: canvas.height - 100,
-  //   width: canvas.width * 0.1,
-  //   height: canvas.height * 0.3,
-  //   color: "blue",
-  //   dy: 0,
-  //   gravity: 0.6,
-  //   jumpPower: -15,
-  //   grounded: true,
-  // };
-
   player = {
   x: 50,
   y: canvas.height - playerHeight,
@@ -49,8 +37,8 @@ function init() {
 }
 
 // Player setup with fixed aspect ratio
-let playerHeight = canvas.height * 0.18;
-let playerWidth = playerHeight * 0.6; // maintain ratio (not stretched)
+let playerHeight = canvas.height * 0.20;
+let playerWidth = playerHeight * 0.8; // maintain ratio (not stretched)
 
 function startGame() {
   init();
@@ -77,6 +65,18 @@ const semicolonImg = new Image();
 semicolonImg.src = "images/semicolon.png";
 
 obstacleImages = [syntaxImg, semicolonImg];
+
+function drawBackground() {
+  // Fill background color first
+  ctx.fillStyle = "#111"; // canvas background
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Add background text
+  ctx.font = `${canvas.width * 0.08}px Arial`;  // font size relative to screen
+  ctx.fillStyle = "rgba(255, 255, 255, 0.1)";   // light transparent text
+  ctx.textAlign = "center";
+  ctx.fillText("My Coding Game", canvas.width / 2, canvas.height / 2);
+}
 
 function drawPlayer() {
   if (playerImg.complete) {
@@ -119,6 +119,20 @@ function checkCollision(a, b) {
   );
 }
 
+function spawnObstacle() {
+  const size = 40 + Math.random() * 30;
+  obstacles.push({
+    x: canvas.width,
+    y: canvas.height - size,
+    width: size,
+    height: size,
+    img: Math.random() > 0.5 ? syntaxImg : semicolonImg,
+    passed: false   // new property
+  });
+}
+
+
+
 let lastSpawn = Date.now();
 let spawnInterval = 2000; // ms
 let gameSpeed = 5;
@@ -127,6 +141,16 @@ function update() {
   if (!gameStarted || gameOver) return;
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // === Draw Background (color + text) ===
+  ctx.fillStyle = "black"; // canvas bg
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Add faint background text
+  ctx.font = `${canvas.width * 0.08}px Arial`;
+  ctx.fillStyle = "white"; // transparent text
+  ctx.textAlign = "center";
+  ctx.fillText("Abhudaya coding club", canvas.width / 2, canvas.height / 2);
 
   // Player physics
   player.y += player.dy;
@@ -150,6 +174,16 @@ function update() {
   // Move obstacles
   obstacles.forEach(obs => {
     obs.x -= gameSpeed;
+    
+     // Score +10 if player is above obstacle when passing
+  if (!obs.passed && obs.x + obs.width < player.x) {
+    if (player.y + player.height <= obs.y) {  
+      // player was above obstacle
+      score += 10;
+    }
+    obs.passed = true; // mark as counted
+  }
+
   });
 
   // Remove off-screen
@@ -169,7 +203,8 @@ function update() {
   }
 
   // Score
-  score++;
+
+
   scoreBoard.innerText = `Score: ${score}`;
 
   requestAnimationFrame(update);
