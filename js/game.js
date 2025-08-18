@@ -98,17 +98,17 @@ function drawObstacles() {
   });
 }
 
-function spawnObstacle() {
-  let size = canvas.height * 0.09;
-  let obs = {
-    x: canvas.width,
-    y: canvas.height - size,
-    width: canvas.width * 0.1,
-    height: size,
-    img: obstacleImages[Math.floor(Math.random() * obstacleImages.length)],
-  };
-  obstacles.push(obs);
-}
+// function spawnObstacle() {
+//   let size = canvas.height * 0.09;
+//   let obs = {
+//     x: canvas.width,
+//     y: canvas.height - size,
+//     width: 1,
+//     height: 1,
+//     img: obstacleImages[Math.floor(Math.random() * obstacleImages.length)],
+//   };
+//   obstacles.push(obs);
+// }
 
 function checkCollision(a, b) {
   return (
@@ -139,8 +139,8 @@ function spawnObstacle() {
   obstacles.push({
     x: canvas.width,
     y: canvas.height - size,
-    width: size,
-    height: size,
+    width: size*0.7,
+    height: size-10,
     img: Math.random() > 0.5 ? syntaxImg : semicolonImg,
     passed: false   // new property
   });
@@ -150,7 +150,7 @@ function spawnObstacle() {
 
 let lastSpawn = Date.now();
 let spawnInterval = 2000; // ms
-let gameSpeed = 3.5;
+let gameSpeed = 4;
 
 function update() {
   if (!gameStarted || gameOver) return;
