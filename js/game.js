@@ -98,17 +98,6 @@ function drawObstacles() {
   });
 }
 
-// function spawnObstacle() {
-//   let size = canvas.height * 0.09;
-//   let obs = {
-//     x: canvas.width,
-//     y: canvas.height - size,
-//     width: 1,
-//     height: 1,
-//     img: obstacleImages[Math.floor(Math.random() * obstacleImages.length)],
-//   };
-//   obstacles.push(obs);
-// }
 
 function checkCollision(a, b) {
   return (
@@ -150,7 +139,7 @@ function spawnObstacle() {
 
 let lastSpawn = Date.now();
 let spawnInterval = 2000; // ms
-let gameSpeed = 4;
+let gameSpeed = 3.5;
 
 function update() {
   if (!gameStarted || gameOver) return;
